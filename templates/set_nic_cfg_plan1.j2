@@ -1,0 +1,52 @@
+#!/bin/bash
+clear_ip_addresses()
+{
+ for con in $(sudo nmcli -t -f NAME c show --active); 
+ do sudo nmcli con delete $con; 
+ done
+
+}
+function get_dev_name_of_mac()
+{
+ 
+ nic_device_with_semicolon=$(/sbin/ip a | grep $1 -B1 | grep -v link | awk '{print $2}')
+ nic_device=${nic_device_with_semicolon/:/}
+ echo $nic_device
+}
+
+set_ip_address_vlan_if_over_single_if()
+{
+ DNS1="{{ dns[0] }}"
+ DNS2="{{ dns[1] }}"
+ IPadd=$1
+ pflen=$2
+ gway=$3
+ macaddress=$4
+ hostnameparm=$5
+ VLANID="{{ hostvars[inventory_hostname].vlan }}"
+ phydev=$(get_dev_name_of_mac $macaddress)
+ UUID=$phydev.$VLANID
+
+ nmcli con add type vlan ifname $UUID connection.id $UUID dev $phydev id $VLANID
+ sudo nmcli connection modify $UUID IPv4.address $IPadd/$pflen
+ sudo nmcli connection modify $UUID IPv4.gateway $gway
+ sudo nmcli connection modify $UUID IPv4.method manual
+ sudo nmcli connection modify $UUID ipv4.dns "$DNS1 $DNS2"
+ sudo nmcli connection modify $UUID ipv4.dns-search "$searchdomain"
+ sudo nmcli connection modify $UUID ipv4.may-fail no
+ sudo hostnamectl set-hostname $hostnameparm
+ sudo nmcli connection down $UUID
+ sudo nmcli connection up $UUID
+
+sleep 15
+}
+envanter="{{ envanterinfo }}"
+IFS=','
+read -ra envantertokenized <<< "$envanter"
+
+for nodes in ${envantertokenized[@]}; do
+    IFS='_'
+    read -ra parameters <<< "$nodes"
+    clear_ip_addresses
+    set_ip_address_vlan_if_over_single_if ${parameters[1]} ${parameters[2]} ${parameters[3]} "{{ hostvars[inventory_hostname].macaddress }}" ${parameters[0]} 
+done

@@ -1,0 +1,6 @@
+- name: create vms
+  hosts: cluster
+  gather_facts: no
+  roles:
+    - node_create
+

@@ -1,0 +1,66 @@
+---
+cluster:
+  children:
+    bootstrap:
+      hosts:
+        bootstrap.cls1.linuxera.hq:
+          ipv4: 10.134.79.20
+          platform: baremetal
+          nicconfig: cfg_plan2
+          osdisk: /dev/sda
+          macaddress: d8:c4:97:19:f1:cb,d8:c4:97:19:f1:cc
+          vlan: 790
+
+  
+    mstr01:
+      hosts:
+        mstr01.cls1.linuxera.hq:
+          ipv4: 10.134.79.21
+          platform: vmware
+          nicconfig: cfg_plan_default
+          osdisk: /dev/sda
+          macaddress: mstr01_mac
+          vlan: mstr01_vlan
+  
+    mstr02:
+      hosts:
+        mstr02.cls1.linuxera.hq:
+          ipv4: 10.134.79.22
+          platform: vmware
+          nicconfig: cfg_plan_default
+          osdisk: /dev/sda
+          macaddress: mstr02_mac
+          vlan: mstr02_vlan
+  
+    mstr03:
+      hosts:
+        mstr03.cls1.linuxera.hq:
+          ipv4: 10.134.79.23
+          platform: vmware
+          nicconfig: cfg_plan_default
+          osdisk: /dev/sda
+          macaddress: mstr03_mac
+          vlan: mstr03_vlan
+    
+        
+   
+    wrk01:
+      hosts:
+        wrk01.cls1.linuxera.hq:
+          ipv4: 10.134.79.24
+          platform: vmware
+          nicconfig: cfg_plan_default
+          osdisk: /dev/sda
+          macaddress: wrk01_mac
+          vlan: wrk01_vlan
+   
+    wrk02:
+      hosts:
+        wrk02.cls1.linuxera.hq:
+          ipv4: 10.134.79.25
+          platform: vmware
+          nicconfig: cfg_plan_default
+          osdisk: /dev/sda
+          macaddress: wrk02_mac
+          vlan: wrk02_vlan
+...

@@ -1,0 +1,9 @@
+nodehw:  
+  - name: bootstrap
+    platform: baremetal
+    nicconfig: cfg_plan2
+    macaddress: d8:c4:97:19:f1:cb,d8:c4:97:19:f1:cc 
+    vlan: 790
+bmbaseuri: 
+bmusername: admin
+bmpassword: admin

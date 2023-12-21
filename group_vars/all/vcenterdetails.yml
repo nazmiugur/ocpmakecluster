@@ -1,0 +1,10 @@
+vcenter_hostname: 
+vcenter_username: 
+vcenter_password: 
+datacenter_name: 
+datastore_name: 
+vm_memory: 16000
+vm_cpu_count: 4
+vm_network: VLAN600
+iso_folder: iso/
+

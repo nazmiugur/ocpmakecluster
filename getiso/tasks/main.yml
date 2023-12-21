@@ -1,0 +1,64 @@
+---
+# tasks file for getiso
+    - name: get occlient version on the host
+      ansible.builtin.raw: "oc version --client  | grep Client | awk '{print $3}'"
+      register: occlientver
+      delegate_to: localhost
+
+    - name: show occlientver
+      ansible.builtin.debug:
+        msg: "{{ occlientver }}"
+      delegate_to: localhost
+
+    - name: set rhcos version
+      ansible.builtin.set_fact:
+        rhcosversion: "{{ occlientver.stdout_lines[0].split('.')[0] }}.{{ occlientver.stdout_lines[0].split('.')[1] }}"
+        my_iso: rhcos-live.x86_64.iso
+      delegate_to: localhost
+
+    - name: get RCHCOS version from ocpversion
+      ansible.builtin.debug:
+         msg: "{{ rhcosversion }}"
+      delegate_to: localhost
+
+
+    - name: Check if ISO is already available
+      stat:
+        path: /tmp/{{ my_iso }}
+        checksum_algorithm: sha256
+        get_checksum: yes
+      register: iso_file
+
+    - name: show iso_file existence
+      ansible.builtin.debug:
+        msg: "{{ iso_file.stat.exists }}"
+
+
+    - name: Get coreos iso
+      get_url:
+        url: https://mirror.openshift.com/pub/openshift-v4/x86_64/dependencies/rhcos/{{ rhcosversion }}/latest/rhcos-live.x86_64.iso
+        dest: /tmp
+      delegate_to: localhost
+      when: 
+        - not iso_file.stat.exists or forcedownloadiso
+          #  forcedownloadiso == 'true' 
+
+
+      #    - name: Mount ISO
+      #      mount:
+      #  src: /tmp/{{ my_iso }}
+      #  path: /mnt/iso
+      #  fstype: iso9660
+      #  opts: ro,noauto
+      #  state: mounted
+      #become: true
+      #delegate_to: localhost
+
+      # - name: Copy contents of iso
+      #synchronize:
+      #  src: /mnt/iso/
+      #  dest: /tmp/rhcos-iso/
+      #delegate_to: localhost
+
+
+

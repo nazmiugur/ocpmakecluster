@@ -1,0 +1,24 @@
+---
+- name: create inventory information
+  hosts: localhost
+  gather_facts: no
+  tasks:
+
+
+
+    - name: show bootstrap ip and domain
+      ansible.builtin.debug:  
+         msg: "bootstrap.{{ subdomain }}.{{ basedomain }} firstIP"
+      delegate_to: localhost 
+    
+    - name: get RCHCOS version from ocpversion
+      ansible.builtin.debug:  
+         msg: "{{ firstIP  }}"
+      delegate_to: localhost
+
+    - name: create template inventory configuration
+      ansible.builtin.template:
+        src: templates/inventorytmp.yml
+        dest: inventory.yml
+      delegate_to: localhost
+

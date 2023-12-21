@@ -1,0 +1,24 @@
+#!/bin/bash
+# set a variable
+
+IPadd={{ ipaddress }}
+pflen=24
+gway={{ gateway }}
+UUID=ens192
+
+
+IP=$(/sbin/ip route | awk '/default/ { print $3 }')
+
+while true
+do
+  if [ -z "$IP" ]
+  then
+                sudo nmcli connection modify $UUID IPv4.address $IPadd/$pflen
+                sudo nmcli connection modify $UUID IPv4.gateway $gway
+                sudo nmcli connection modify $UUID IPv4.method manual
+                sudo nmcli connection down $UUID
+                sudo nmcli connection up $UUID
+   fi
+   sleep 60
+done
+

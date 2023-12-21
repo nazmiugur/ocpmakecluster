@@ -1,0 +1,37 @@
+---
+cluster:
+  children:
+    bootstrap:
+      hosts:
+        bootstrap.{{ subdomain }}.{{ basedomain }}:
+          ipv4: {{ firstIP }}
+          platform: bootstrap_{{ default_platform }}
+          nicconfig: bootstrap_{{ default_nic_config }}
+          osdisk: bootstrap_{{ default_os_disk }}
+          macaddress: bootstrap_mac
+          vlan: bootstrap_vlan
+
+{% for n in range(3) %}  
+    mstr0{{ n + 1 }}:
+      hosts:
+        mstr0{{ n +1  }}.{{ subdomain }}.{{ basedomain }}:
+          ipv4: {{ firstIP.split('.')[0] }}.{{ firstIP.split('.')[1] }}.{{ firstIP.split('.')[2] }}.{{ (firstIP.split('.')[3])|int + n + 1 }}
+          platform: mstr0{{ n +1  }}_{{ default_platform }}
+          nicconfig: mstr0{{ n +1  }}_{{ default_nic_config }}
+          osdisk: mstr0{{ n +1  }}_{{ default_os_disk }}
+          macaddress: mstr0{{ n +1  }}_mac
+          vlan: mstr0{{ n +1  }}_vlan
+{% endfor %}    
+        
+{% for n in range(workercount) %}   
+    wrk0{{ n + 1 }}:
+      hosts:
+        wrk0{{ n + 1 }}.{{ subdomain }}.{{ basedomain }}:
+          ipv4: {{ firstIP.split('.')[0] }}.{{ firstIP.split('.')[1] }}.{{ firstIP.split('.')[2] }}.{{ (firstIP.split('.')[3])|int + 4 + n }}
+          platform: wrk0{{ n + 1 }}_{{ default_platform }}
+          nicconfig: wrk0{{ n + 1 }}_{{ default_nic_config }}
+          osdisk: wrk0{{ n + 1 }}_{{ default_os_disk }}
+          macaddress: wrk0{{ n + 1 }}_mac
+          vlan: wrk0{{ n + 1 }}_vlan
+{% endfor %}
+...

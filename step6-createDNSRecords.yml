@@ -1,0 +1,16 @@
+- name: Ensure DNS Record is present.
+  hosts: localhost
+  gather_facts: false
+
+  tasks:
+  # Ensure that dns record is present
+  - name: put record do idm
+    community.general.ipa_dnsrecord:
+      ipa_host: 10.133.41.141
+      ipa_pass: "{{ ipaadmin_password }}"
+      validate_certs: false
+      record_name: host1
+      record_type: 'A'      
+      zone_name: "{{ subdomain }}.{{ basedomain }}."
+      record_value: '10.106.60.31'
+      state: present

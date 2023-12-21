@@ -1,0 +1,21 @@
+---
+- name: fetch iso
+  hosts: localhost
+  gather_facts: no
+  tasks:
+      
+    - name: fetch rhcos original iso from redhat 
+      ansible.builtin.include_role:
+        name: getiso
+    
+
+- name: createiso 
+  hosts: cluster
+  gather_facts: no
+  serial: 1
+  tasks:
+    
+    - name: create custom iso files
+      ansible.builtin.include_role:
+        name: createisos
+
