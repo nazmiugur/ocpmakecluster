@@ -12,11 +12,17 @@
  step8 corresponding Loadbalancer configuration for haproxy is created. In other words it create haproxy.cfg in folder that playbook is run
 
 
-$ ansible-playbook step1-PrerequisiteFiles.yml 
-$ ansible-playbook step2-ManifestAndIgnitionConfigs.yml 
-$ ansible-playbook step3-InventoryConfig.yml 
-$ ansible-playbook step4_create_inv_custom.yml -i inventory.yml 
-$ ansible-playbook step5-ISOfiles.yml -i inventory.yml 
-$ ansible-playbook step7-createnodes.yml -i inventory.yml 
-$ ansible-playbook step8-createHaProxyCfg.yml -i inventory.yml 
+ ansible-playbook step1-PrerequisiteFiles.yml 
+ 
+ ansible-playbook step2-ManifestAndIgnitionConfigs.yml 
+
+ ansible-playbook step3-InventoryConfig.yml 
+
+ ansible-playbook step4_create_inv_custom.yml -i inventory.yml 
+
+ ansible-playbook step5-ISOfiles.yml -i inventory.yml 
+
+ ansible-playbook step7-createnodes.yml -i inventory.yml 
+
+ ansible-playbook step8-createHaProxyCfg.yml -i inventory.yml 
 
