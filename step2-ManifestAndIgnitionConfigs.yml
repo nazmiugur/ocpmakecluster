@@ -1,0 +1,59 @@
+---
+- name: prepare manifests and cluster ignition files
+  hosts: localhost
+  gather_facts: yes
+  tasks:
+
+    - name: find install directory relative path
+      ansible.builtin.raw: "ls -lArt | grep install_  | tail -n 1 | awk '{print $9}'"
+      register: install_dir_relative_path
+
+    - name: show relative path of the install_dir
+      ansible.builtin.debug:
+        msg: "{{ install_dir_relative_path.stdout_lines[0] }}"
+      delegate_to: localhost
+
+    - name: fetch install directory
+      ansible.builtin.set_fact:
+        install_dir: "{{ playbook_dir }}/{{ install_dir_relative_path.stdout_lines[0] }}/"
+      delegate_to: localhost
+
+    - name: show relative path of the install_dir
+      ansible.builtin.debug:
+        msg: "{{ install_dir }}"
+      delegate_to: localhost
+
+
+
+    - name: create cluster manifest files
+      ansible.builtin.command: 'openshift-install create manifests --dir {{ install_dir }}'
+      delegate_to: localhost
+
+    - name: set masterschedulable flag
+      ansible.builtin.replace:
+        path: "{{ install_dir}}manifests/cluster-scheduler-02-config.yml"
+        regexp: 'mastersSchedulable: true'
+        replace: 'mastersSchedulable: false'
+      when: mastersSchedulable == 'false'
+      delegate_to: localhost
+    
+    - name: create cluster ignition files
+      ansible.builtin.command: 'openshift-install create ignition-configs --dir {{ install_dir }}'
+      delegate_to: localhost
+
+
+    - name: get RCHCOS version from ocpversion
+      ansible.builtin.raw: "oc version --client | grep -i Client | awk '{print $3}'"
+      register: occlientver
+      delegate_to: localhost
+
+    - name: set rhcos version
+      ansible.builtin.set_fact:
+        rhcosversion: "{{ occlientver.stdout_lines[0].split('.')[0] }}.{{ occlientver.stdout_lines[0].split('.')[1] }}"
+      delegate_to: localhost
+
+
+    - name: get RCHCOS version from ocpversion
+      ansible.builtin.debug:  
+         msg: "{{ rhcosversion }}"
+      delegate_to: localhost

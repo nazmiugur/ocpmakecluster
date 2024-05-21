@@ -1,0 +1,24 @@
+- name: Ensure DNS Record is present.
+  hosts: localhost
+  gather_facts: false
+
+  tasks:
+    # Validate password and login name
+    - name: validate login name and password
+      fail:
+        msg: "Kullanıcı adı ve parola eşleşmiyor."
+      when: not ((ansible_name == ipaadmin_username) and (ansible_password == ipaadmin_password))
+
+    # Ensure that DNS record is present
+    - name: put record to IDM
+      community.general.ipa_dnsrecord:
+        ipa_host: 10.133.41.141
+        ipa_user: "{{ ipaadmin_username }}"
+        ipa_pass: "{{ ipaadmin_password }}"
+        validate_certs: false
+        record_name: host1
+        record_type: 'A'
+        zone_name: "{{ subdomain }}.{{ basedomain }}."
+        record_value: '10.106.60.31'
+        state: present
+

@@ -1,0 +1,69 @@
+
+
+frontend {{ subdomain }}-{{ apiintip }}-api 
+    bind {{ apiintip }}:6443
+    default_backend {{ subdomain }}-{{ apiintip }}-api
+    mode tcp
+    option tcplog
+
+
+backend {{ subdomain }}-{{ apiintip }}-api
+    balance source
+    mode tcp
+    server bootstrap {{ firstIP }}:6443 check
+    server master01 {{ firstIP.split('.')[0] }}.{{ firstIP.split('.')[1] }}.{{ firstIP.split('.')[2] }}.{{ (firstIP.split('.')[3])|int + 1 }}:6443 check
+    server master02 {{ firstIP.split('.')[0] }}.{{ firstIP.split('.')[1] }}.{{ firstIP.split('.')[2] }}.{{ (firstIP.split('.')[3])|int + 2 }}:6443 check
+    server master03 {{ firstIP.split('.')[0] }}.{{ firstIP.split('.')[1] }}.{{ firstIP.split('.')[2] }}.{{ (firstIP.split('.')[3])|int + 3 }}:6443 check
+    
+frontend {{ subdomain }}-{{ apiintip }}-machine-config-server
+    bind {{ apiintip }}:22623
+    default_backend {{ subdomain }}-{{ apiintip }}-machine-config-server
+    mode tcp
+    option tcplog
+
+backend {{ subdomain }}-{{ apiintip }}-machine-config-server
+    balance source
+    mode tcp
+    server bootstrap {{ firstIP }}:22623 check
+    server master01 {{ firstIP.split('.')[0] }}.{{ firstIP.split('.')[1] }}.{{ firstIP.split('.')[2] }}.{{ (firstIP.split('.')[3])|int + 1 }}:22623 check
+    server master02 {{ firstIP.split('.')[0] }}.{{ firstIP.split('.')[1] }}.{{ firstIP.split('.')[2] }}.{{ (firstIP.split('.')[3])|int + 2 }}:22623 check
+    server master03 {{ firstIP.split('.')[0] }}.{{ firstIP.split('.')[1] }}.{{ firstIP.split('.')[2] }}.{{ (firstIP.split('.')[3])|int + 3 }}:22623 check
+
+frontend {{ subdomain }}-{{ appsip }}-ingress-http
+    bind {{ appsip }}:80
+    default_backend {{ subdomain }}-{{ appsip }}-ingress-http
+    mode tcp
+    option tcplog
+
+backend {{ subdomain }}-{{ appsip }}-ingress-http
+    balance source
+    mode tcp
+{% for n in range(workercount) %}
+    server worker{{ n + 1 }} {{ firstIP.split('.')[0] }}.{{ firstIP.split('.')[1] }}.{{ firstIP.split('.')[2] }}.{{ (firstIP.split('.')[3])|int + 4 + n }}:80 check
+{% endfor %}
+{% if mastersSchedulable %}
+    server master01 {{ firstIP.split('.')[0] }}.{{ firstIP.split('.')[1] }}.{{ firstIP.split('.')[2] }}.{{ (firstIP.split('.')[3])|int + 1 }}:80 check
+    server master02 {{ firstIP.split('.')[0] }}.{{ firstIP.split('.')[1] }}.{{ firstIP.split('.')[2] }}.{{ (firstIP.split('.')[3])|int + 2 }}:80 check
+    server master03 {{ firstIP.split('.')[0] }}.{{ firstIP.split('.')[1] }}.{{ firstIP.split('.')[2] }}.{{ (firstIP.split('.')[3])|int + 3 }}:80 check
+{% endif %}
+
+   
+frontend {{ subdomain }}-{{ appsip }}-ingress-https
+    bind {{ appsip }}:443
+    default_backend {{ subdomain }}-{{ appsip }}-ingress-https
+    mode tcp
+    option tcplog
+
+backend {{ subdomain }}-{{ appsip }}-ingress-https
+    balance source
+    mode tcp
+{% for n in range(workercount) %}
+    server worker{{ n + 1 }} {{ firstIP.split('.')[0] }}.{{ firstIP.split('.')[1] }}.{{ firstIP.split('.')[2] }}.{{ (firstIP.split('.')[3])|int + 4 + n }}:443 check
+{% endfor %}
+{% if mastersSchedulable %}
+    server master01 {{ firstIP.split('.')[0] }}.{{ firstIP.split('.')[1] }}.{{ firstIP.split('.')[2] }}.{{ (firstIP.split('.')[3])|int + 1 }}:443 check
+    server master02 {{ firstIP.split('.')[0] }}.{{ firstIP.split('.')[1] }}.{{ firstIP.split('.')[2] }}.{{ (firstIP.split('.')[3])|int + 2 }}:443 check
+    server master03 {{ firstIP.split('.')[0] }}.{{ firstIP.split('.')[1] }}.{{ firstIP.split('.')[2] }}.{{ (firstIP.split('.')[3])|int + 3 }}:443 check
+{% endif %}
+
+

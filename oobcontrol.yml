@@ -1,0 +1,20 @@
+---
+- name: oob operation
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Restart system power gracefully
+      community.general.redfish_command:
+        category: Systems
+        command: PowerReboot
+        # resource_id: QTCFJ08010001
+        baseuri: "{{ bmbaseuri }}"
+        username: "{{ bmusername }}"
+        password: "{{ bmpassword }}"
+      ignore_errors: true
+    - name: Ensure machine is powered on
+      community.general.ipmi_power:
+        name: "{{ bmbaseuri }}"
+        user: "{{ bmusername }}"
+        password: "{{ bmpassword }}"
+        state: 'reset'

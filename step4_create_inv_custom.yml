@@ -1,0 +1,88 @@
+- name: Customize inventory
+  hosts: cluster
+  gather_facts: no
+  tasks:
+
+
+    - name: Replace platform information
+      ansible.builtin.replace:
+        path: inventory.yml
+        regexp: "{{ inventory_hostname_short }}_{{ default_platform }}"
+        replace: "{{ item.platform }}"
+      when: 
+        - item.name == inventory_hostname_short
+        - item.platform != default_platform  
+      loop: "{{ nodehw }}"
+      delegate_to: localhost 
+
+    - name: Replace default platform information
+      ansible.builtin.replace:
+        path: inventory.yml
+        regexp: "{{ inventory_hostname_short }}_{{ default_platform }}"
+        replace: "{{ default_platform }}"
+      delegate_to: localhost
+
+
+    - name: Replace nic configuration
+      ansible.builtin.replace:
+        path: inventory.yml
+        regexp: "{{ inventory_hostname_short }}_{{ default_nic_config }}"
+        replace: "{{ item.nicconfig }}"
+      when:
+        - item.name == inventory_hostname_short
+        - item.nicconfig is defined
+        - item.nicconfig != default_nic_config
+      loop: "{{ nodehw }}"
+      delegate_to: localhost
+
+    - name: Replace default nicconfig information
+      ansible.builtin.replace:
+        path: inventory.yml
+        regexp: "{{ inventory_hostname_short }}_{{ default_nic_config }}"
+        replace: "{{ default_nic_config }}"
+      delegate_to: localhost
+      
+
+
+    - name: Replace osdisk configuration
+      ansible.builtin.replace:
+        path: inventory.yml
+        regexp: "{{ inventory_hostname_short }}_{{ default_os_disk }}"
+        replace: "{{ item.osdisk }}"
+      when:
+        - item.name == inventory_hostname_short
+        - item.osdisk is defined
+        - item.osdisk != default_os_disk
+      loop: "{{ nodehw }}"
+      delegate_to: localhost
+
+    - name: Replace default osdisk information
+      ansible.builtin.replace:
+        path: inventory.yml
+        regexp: "{{ inventory_hostname_short }}_{{ default_os_disk }}"
+        replace: "{{ default_os_disk }}"
+      loop: "{{ nodehw }}"  
+      delegate_to: localhost
+      
+    - name: Replace macaddress configuration
+      ansible.builtin.replace:
+        path: inventory.yml
+        regexp: "{{ inventory_hostname_short }}_mac"
+        replace: "{{ item.macaddress }}"
+      when:
+        - item.name == inventory_hostname_short
+        - item.macaddress is defined
+      loop: "{{ nodehw }}"
+      delegate_to: localhost
+
+    - name: Replace vlan configuration
+      ansible.builtin.replace:
+        path: inventory.yml
+        regexp: "{{ inventory_hostname_short }}_vlan"
+        replace: "{{ item.vlan }}"
+      when:
+        - item.name == inventory_hostname_short
+        - item.vlan is defined
+      loop: "{{ nodehw }}"
+      delegate_to: localhost
+

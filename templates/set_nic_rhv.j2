@@ -1,0 +1,33 @@
+#!/bin/bash
+
+set_ip_address_ens3()
+{
+ DNS1="{{ dns[0] }}"
+ DNS2="{{ dns[1] }}"
+ IPadd=$1
+ pflen=$2
+ gway=$3
+ UUID=$4
+ hostnameparm=$5
+ IP=$(/sbin/ip route | awk '/default/ { print $3 }')
+if [ -z "$IP" ]
+then
+    sudo nmcli connection modify $UUID IPv4.address $IPadd/$pflen
+    sudo nmcli connection modify $UUID IPv4.gateway $gway
+    sudo nmcli connection modify $UUID IPv4.method manual
+    sudo nmcli connection modify $UUID ipv4.dns "$DNS1 $DNS2"
+    sudo nmcli connection down $UUID
+    sudo nmcli connection up $UUID
+    sudo hostnamectl set-hostname $hostnameparm
+fi
+sleep 5
+}
+envanter="{{ envanterinfo }}"
+IFS=','
+read -ra envantertokenized <<< "$envanter"
+
+for nodes in ${envantertokenized[@]}; do
+    IFS='_'
+    read -ra parameters <<< "$nodes"
+    set_ip_address_ens3 ${parameters[1]} ${parameters[2]} ${parameters[3]} "ens3" ${parameters[0]}
+done

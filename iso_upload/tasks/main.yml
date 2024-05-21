@@ -1,0 +1,16 @@
+---
+# tasks file for node_create
+#
+- name: Copy iso files to vcenter
+  community.vmware.vsphere_copy:
+    hostname: "{{ vcenter_hostname }}"
+    username: "{{ vcenter_username }}"
+    password: "{{ vcenter_password }}"
+    src: /tmp/{{ subdomain }}-{{ inventory_hostname_short }}.iso
+    datacenter: "{{ datacenter_name }}"
+    datastore: "{{ datastore_name }}"
+    validate_certs: false
+    path: iso/{{ subdomain }}-{{ inventory_hostname_short }}.iso
+  delegate_to: localhost
+
+ 

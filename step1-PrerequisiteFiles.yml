@@ -1,0 +1,130 @@
+---
+- name: prepare install-config.yml and download latest binaries
+  hosts: localhost
+  gather_facts: yes
+  tasks:
+
+
+    - name: set ocp tools version
+      ansible.builtin.set_fact:
+        ocpversion: "{{ ocpver }}"
+      when: ocpver is defined
+      delegate_to: localhost
+
+    - name: set butane version
+      ansible.builtin.set_fact:
+        butaneversion: "{{ butanever }}"
+      when: butanever is defined
+      delegate_to: localhost
+
+    - name: set coreosinstaller version
+      ansible.builtin.set_fact:
+        coreosinstallerversion: "{{ coreosinstallerver }}"
+      when: butanever is defined
+      delegate_to: localhost
+
+
+    - name: show urls that contains ocp tools
+      ansible.builtin.debug:
+        msg: "{{ item }}"
+      loop: "{{ ocptarfiles }}"
+      delegate_to: localhost
+
+
+    - block:
+      - name: download ocp relevant binaries
+        ansible.builtin.get_url:
+          url: "{{ item }}" 
+          dest: "{{  playbook_dir }}/"
+        loop: "{{ ocptarfiles }}"
+        delegate_to: localhost
+
+      - name: Create interim directory for ocpclient if not exist
+        ansible.builtin.file:
+          path: "{{ playbook_dir }}/openshift-binaries/"
+          state: directory
+          mode: '0755'
+        delegate_to: localhost
+
+
+      - name: trim architecture info from butane binary
+        ansible.builtin.command: "mv {{ playbook_dir }}/butane-amd64  {{ playbook_dir }}/butane"
+        delegate_to: localhost
+        
+
+      - name: trim architecture info from coreos-installer binary
+        ansible.builtin.command: "mv {{ playbook_dir }}/coreos-installer_amd64  {{ playbook_dir }}/coreos-installer"
+        delegate_to: localhost
+        
+      - name: change mode to executable coreos installer
+        ansible.builtin.command: "chmod a+x {{ playbook_dir }}/{{ item }}"
+        loop:
+          - coreos-installer
+          - butane
+        delegate_to: localhost
+
+      - name: Extract occlient tar
+        ansible.builtin.unarchive:
+          src: "{{ playbook_dir }}/openshift-client-linux.tar.gz"
+          dest: "{{ playbook_dir }}/openshift-binaries/"
+        delegate_to: localhost
+
+      - name: Extract openshift installer
+        ansible.builtin.unarchive:
+          src: "{{ playbook_dir }}/openshift-install-linux.tar.gz"
+          dest: "{{ playbook_dir }}/openshift-binaries/"
+        delegate_to: localhost
+
+
+
+      - name: Copy binaries to  usr_local_sbin
+        ansible.builtin.command: "cp -f {{ playbook_dir }}/{{ item }} /usr/local/sbin"
+        loop:
+           - coreos-installer
+           - butane
+           - openshift-binaries/oc
+           - openshift-binaries/kubectl 
+           - openshift-binaries/openshift-install           
+        delegate_to: localhost
+
+      - name: Copy binaries to  usr_local_bin
+        ansible.builtin.command: "cp -f {{ playbook_dir }}/{{ item }} /usr/local/bin"
+        loop:
+           - coreos-installer
+           - butane
+           - openshift-binaries/oc
+           - openshift-binaries/kubectl
+           - openshift-binaries/openshift-install
+        delegate_to: localhost
+      when: refetchbinary     
+
+    - name: set installation directory name
+      ansible.builtin.set_fact:
+        installdir: "{{ playbook_dir }}/install_{{ ansible_date_time.iso8601_basic_short }}/"
+      delegate_to: localhost
+
+
+    - name: Create installation directory
+      ansible.builtin.file:
+        path: "{{ installdir }}"
+        state: directory
+        mode: '0755'
+      delegate_to: localhost
+
+    - name: Create installation iso directory
+      ansible.builtin.file:
+        path: "{{ installdir }}/isos"
+        state: directory
+        mode: '0755'
+      delegate_to: localhost
+
+
+
+    - name: create template install-config yml
+      ansible.builtin.template:
+        src: templates/install-config.tmp.yaml
+        dest: "{{ installdir }}install-config.yaml"
+      delegate_to: localhost
+
+
+

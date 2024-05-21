@@ -1,0 +1,14 @@
+---
+- name: create inventory information
+  hosts: localhost
+  gather_facts: no
+  tasks:
+
+
+
+    - name: create haproxy configuration
+      ansible.builtin.template:
+        src: templates/haproxy.j2
+        dest: haproxy.cfg
+      delegate_to: localhost
+

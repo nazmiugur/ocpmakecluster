@@ -1,0 +1,10 @@
+vcenter_hostname: lxvcnt01.anklera.hq
+vcenter_username: administrator@anklera.hq
+vcenter_password: Sptl@b123
+datacenter_name: SEKOMDC
+datastore_name: datastore1
+vm_memory: 16384
+vm_cpu_count: 4
+vm_network: VLAN610
+iso_folder: iso/
+

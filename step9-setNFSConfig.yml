@@ -1,0 +1,15 @@
+---
+- name: prepare nfs prepartion yml files
+  hosts: localhost
+  gather_facts: no
+  tasks:
+
+
+
+
+    - name: create template inventory configuration
+      ansible.builtin.template:
+        src: templates/nfs-sc-config/deployment.tmp.yml
+        dest: templates/nfs-sc-config/deployment.yml
+      delegate_to: localhost
+

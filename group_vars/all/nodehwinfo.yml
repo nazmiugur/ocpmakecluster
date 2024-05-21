@@ -1,0 +1,3 @@
+nodehw:  
+  - name: bootstrap
+    platform: vmware

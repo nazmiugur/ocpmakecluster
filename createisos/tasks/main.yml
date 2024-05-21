@@ -1,0 +1,63 @@
+---
+# tasks file for createisos
+##########
+#
+#
+#
+#
+    - name: find install directory relative path
+      ansible.builtin.raw: "ls -lArt | grep install_  | tail -n 1 | awk '{print $9}'"
+      register: install_dir_relative_path
+      delegate_to: localhost
+
+    - name: show relative path of the install_dir
+      ansible.builtin.debug:
+        msg: "{{ install_dir_relative_path.stdout_lines[0] }}"
+      delegate_to: localhost
+
+    - name: fetch install directory
+      ansible.builtin.set_fact:
+        install_dir: "{{ playbook_dir }}/{{ install_dir_relative_path.stdout_lines[0] }}/"
+      delegate_to: localhost
+
+    - name: show relative path of the install_dir
+      ansible.builtin.debug:
+        msg: "{{ install_dir }}"
+      delegate_to: localhost
+
+    - name: create envanter information for the set_nic templating
+      ansible.builtin.set_fact:
+              #        envanterinfo: "{{ inventory_hostname }}_{{ hostvars[server].ipv4 }}"
+        envanterinfo: "{{ inventory_hostname }}_{{ hostvars[inventory_hostname].ipv4 }}_24_{{ hostvars[inventory_hostname].gateway }}"
+      delegate_to: localhost
+
+    - name: show envanter information
+      ansible.builtin.debug:
+        msg: "{{ envanterinfo }}"
+      delegate_to: localhost
+
+
+    - name: create set_nic sh file
+      ansible.builtin.template:
+        src: templates/set_nic_{{ hostvars[inventory_hostname]['nicconfig'] }}.j2
+        dest: "set_nic_{{ inventory_hostname_short }}.sh"
+        mode: a+x
+      delegate_to: localhost
+
+
+    - name: customize worker isos
+      command: coreos-installer iso customize  --installer-config cfgfile.yaml --dest-device {{ installation_disk }} --pre-install  set_nic_{{ inventory_hostname_short }}.sh --post-install set_nic_{{ inventory_hostname_short }}.sh --dest-ignition {{ install_dir }}worker.ign --output /tmp/{{ subdomain}}-{{ inventory_hostname_short }}.iso /tmp/rhcos-live.x86_64.iso
+      delegate_to: localhost
+      when: 'worker_name_pattern in inventory_hostname'
+
+    - name: customize bootstrap isos
+      command: coreos-installer iso customize  --installer-config cfgfile.yaml --dest-device {{ installation_disk }} --pre-install  set_nic_{{ inventory_hostname_short }}.sh --post-install set_nic_{{ inventory_hostname_short }}.sh --dest-ignition {{ install_dir }}bootstrap.ign --output /tmp/{{ subdomain }}-{{ inventory_hostname_short }}.iso /tmp/rhcos-live.x86_64.iso
+      delegate_to: localhost
+      when: '"bootstrap" in inventory_hostname'
+
+    - name: customize master isos
+      command: coreos-installer iso customize  --installer-config cfgfile.yaml --dest-device {{ installation_disk }} --pre-install  set_nic_{{ inventory_hostname_short }}.sh --post-install set_nic_{{ inventory_hostname_short }}.sh --dest-ignition {{ install_dir }}master.ign --output /tmp/{{ subdomain }}-{{ inventory_hostname_short }}.iso /tmp/rhcos-live.x86_64.iso
+      delegate_to: localhost
+      when: 'master_name_pattern in inventory_hostname'
+
+

@@ -1,0 +1,39 @@
+gateway: 10.106.61.1
+netmask: 255.255.255.0
+interface: ens192
+installation_disk: /dev/sda
+preSupposedConnectionName: "Wired connection 1"
+nfs_ip: 10.106.61.29
+nfs_path: /nfs/clstr03 
+dns:
+  - 10.133.41.141
+  - 10.133.41.142
+boot_timeout: 10
+platform: vmware
+refetchbinary: true
+apiintip: 10.106.61.49
+appsip: 10.106.61.49
+forcedownloadiso: true
+mastersSchedulable: false
+default_platform: vmware
+default_nic_config: cfg_plan_default
+default_os_disk: /dev/sda
+workercount: 2
+master_name_pattern: master
+worker_name_pattern: worker  
+firstIP: 10.106.61.50
+basedomain: anklera.hq
+subdomain: clstr03
+clustercidr: 10.128.0.0/14
+machinecidr: 10.0.0.0/16
+clusternwtype: OVNKubernetes
+servicenw: 172.30.0.0/16
+ocpclientbinary: https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/stable/openshift-client-linux.tar.gz
+ocpversion: latest
+butaneversion: latest
+coreosinstallerver: latest
+ocptarfiles:        
+  - https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/{{ ocpversion }}/openshift-client-linux.tar.gz
+  - https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/{{ ocpversion }}/openshift-install-linux.tar.gz
+  - https://mirror.openshift.com/pub/openshift-v4/clients/coreos-installer/{{ coreosinstallerver }}/coreos-installer_amd64
+  - https://mirror.openshift.com/pub/openshift-v4/clients/butane/{{ butaneversion }}/butane-amd64

@@ -1,0 +1,37 @@
+---
+cluster:
+  children:
+    bootstrap:
+      hosts:
+        bootstrap.{{ subdomain }}.{{ basedomain }}:
+          ipv4: {{ firstIP }}
+          platform: bootstrap_{{ default_platform }}
+          nicconfig: bootstrap_{{ default_nic_config }}
+          osdisk: bootstrap_{{ default_os_disk }}
+          macaddress: bootstrap_mac
+          vlan: bootstrap_vlan
+
+{% for n in range(3) %}  
+    {{ master_name_pattern }}{{ n + 1 }}:
+      hosts:
+        {{ master_name_pattern }}{{ n +1  }}.{{ subdomain }}.{{ basedomain }}:
+          ipv4: {{ firstIP.split('.')[0] }}.{{ firstIP.split('.')[1] }}.{{ firstIP.split('.')[2] }}.{{ (firstIP.split('.')[3])|int + n + 1 }}
+          platform: {{ master_name_pattern }}{{ n +1  }}_{{ default_platform }}
+          nicconfig: {{ master_name_pattern }}{{ n +1  }}_{{ default_nic_config }}
+          osdisk: {{ master_name_pattern }}{{ n +1  }}_{{ default_os_disk }}
+          macaddress: {{ master_name_pattern }}{{ n +1  }}_mac
+          vlan: {{ master_name_pattern }}{{ n +1  }}_vlan
+{% endfor %}    
+        
+{% for n in range(workercount) %}   
+    {{ worker_name_pattern }}{{ n + 1 }}:
+      hosts:
+        {{ worker_name_pattern }}{{ n + 1 }}.{{ subdomain }}.{{ basedomain }}:
+          ipv4: {{ firstIP.split('.')[0] }}.{{ firstIP.split('.')[1] }}.{{ firstIP.split('.')[2] }}.{{ (firstIP.split('.')[3])|int + 4 + n }}
+          platform: {{ worker_name_pattern }}{{ n + 1 }}_{{ default_platform }}
+          nicconfig: {{ worker_name_pattern }}{{ n + 1 }}_{{ default_nic_config }}
+          osdisk: {{ worker_name_pattern }}{{ n + 1 }}_{{ default_os_disk }}
+          macaddress: {{ worker_name_pattern }}{{ n + 1 }}_mac
+          vlan: {{ worker_name_pattern }}{{ n + 1 }}_vlan
+{% endfor %}
+...
